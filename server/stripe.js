@@ -1,9 +1,9 @@
 /* ========================================================================
- * Payment form with Stripe
+ * Payment form with Stripe/Bootstrap : 
  * ========================================================================
  * The MIT License (MIT)
  *
- * Copyright (c) 2019 Yuji Ogihara
+ * Copyright (c) 2018 Yuji Ogihara
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,40 +23,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  * ======================================================================== */
-
 'use strict';
 
-// Load environment variables from the `.env` file
-require('dotenv').config();
+const config = require('../config');
+const stripe = require('stripe')(config.stripe.secretKey);
 
-module.exports = {
+stripe.setApiVersion(config.stripe.apiVersion);
 
-  // Sendgrid - Mail delivery
-  sendgrid: {
-    apiKey: process.env.SENDGRID_API_KEY,
-    templateId_toPayer:process.env.SENDGRID_TEMPLATE_ID_TO_PAYER,
-    templateId_toAdmin:process.env.SENDGRID_TEMPLATE_ID_TO_ADMIN,
-  },  
-  amount: process.env.PAYMENT_AMOUNT,
-  stripe: {
-    // The two-letter country code of your Stripe account (required for Payment Request).
-    country: 'JP',
-    // API version to set for this app (Stripe otherwise uses your default account version).
-    apiVersion: '2018-02-06',
-    // Use your test keys for development and live keys for real charges in production.
-    publishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
-    secretKey: process.env.STRIPE_SECRET_KEY,
-  },
+var Payment = function() {}
 
-  email: {
-    from_address:   process.env.EMAIL_FROM_ADDRESS,
-    from_name:      process.env.EMAIL_FROM_NAME,
-    admin_address:  process.env.EMAIL_ADMIN_ADDRESS,
-    admin_name:     process.env.EMAIL_ADMIN_NAME,
-  },
-  sheet: {
-    credentials: process.env.GOOGLE_CLOUD_CREDENTIALS,
-    id: process.env.GOOGLE_SHEET_ID,
-  },
-  port: process.env.PORT || 8000,
-};
+/* -- */
+Payment.charge = function (token,description,email) {
+    return stripe.charges.create({
+	    amount: config.amount,
+	    currency: "jpy",	/* Japanese Yen */
+	    card: token,
+	    description: description,
+	    receipt_email: email,
+	});
+}
+
+module.exports = Payment ;
