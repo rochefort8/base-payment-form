@@ -38,10 +38,14 @@ module.exports = {
     templateId_toAdmin:process.env.SENDGRID_TEMPLATE_ID_TO_ADMIN,
   },  
   email: {
-      from_address:   process.env.EMAIL_FROM_ADDRESS,
-      from_name:      process.env.EMAIL_FROM_NAME,
-      admin_address:  process.env.EMAIL_ADMIN_ADDRESS,
-      admin_name:     process.env.EMAIL_ADMIN_NAME,
+    from_address:   process.env.EMAIL_FROM_ADDRESS,
+    from_name:      process.env.EMAIL_FROM_NAME,
+    admin_address:  process.env.EMAIL_ADMIN_ADDRESS,
+    admin_name:     process.env.EMAIL_ADMIN_NAME,
+  },
+  sheet: {
+    credentials: process.env.GOOGLE_CLOUD_CREDENTIALS,
+    id: process.env.GOOGLE_SHEET_ID,
   },
   port: process.env.PORT || 8000,
 };
