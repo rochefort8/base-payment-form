@@ -1,0 +1,163 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>Simple payment form with Stripe and Bootstrap</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- jquery/Bootstrap/Stripe -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+
+<!--- Stylesheets -->
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" type="text/css">
+
+<style type="text/css">
+       .StripeElement {
+       }
+       .StripeElement--focus {
+            border-color: #66afe9;
+	    outline: 0;
+	    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
+	    box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
+	}
+	.StripeElement--invalid {
+	}
+	.StripeElement--complete {
+	}
+	.StripeElement--webkit-autofill {
+	}
+</style>
+
+</head>
+
+<body>
+<div class="container">
+
+<form class="form-horizontal" role="form" id="payment-form">
+
+<h2>クレジットカード情報</h2>
+
+<section class="payment">
+
+  <div id="creditcard">
+    <div class="form-group card-number">
+      <label for="cc_number" class="col-sm-2 control-label">カード番号</label>
+      <div class="col-sm-6">
+        <span id="card-number" class="form-control">
+                <!-- Stripe Card Element -->
+        </span>
+      </div>
+    </div>
+
+    <div class="form-group card-exp">
+      <label for="cc-exp" class="col-sm-2 control-label">有効期限</label>
+      <div class="col-sm-3">
+        <span id="card-exp" class="form-control">
+          <!-- Stripe Card Expiry Element -->
+        </span>
+      </div>
+    </div>
+
+    <div class="form-group card-cvc">
+      <label for="card-cvc" class="col-sm-2 control-label">セキュリティコード</label>
+      <div class="col-sm-3">
+        <span id="card-cvc" class="form-control">
+        <!-- Stripe CVC Element -->
+        </span>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<hr>
+
+<nav class="col-sm-10" role="navigation">
+<button type="submit" id="payment-submit" class="btn btn-primary btn-lg btn-block"><span class="glyphicon glyphicon-chevron-right"></span>支払う</button>
+</nav>
+
+</form>
+
+</div> <!-- container -->
+
+<!-- Stripe --->
+<script src="https://js.stripe.com/v3/"></script>
+<script type="text/javascript">
+	'use strict';
+
+	// Create a Stripe client
+        var stripe = Stripe('pk_test_4Ez9CI7W2daKvlb7dV9bIUIx');
+
+        // Create an instance of Elements
+        var elements = stripe.elements();
+
+        // Try to match bootstrap styling
+        var style = {
+            base: {
+                'lineHeight': '1.35',
+                'fontSize': '1.11rem',
+                'color': '#495057',
+                'fontFamily': 'apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif'
+            }
+        };
+
+	// Card number
+        var card = elements.create('cardNumber', {
+            'placeholder': '',
+            'style': style
+        });
+	card.mount('#card-number');	
+	
+        // CVC
+        var cvc = elements.create('cardCvc', {
+            'placeholder': 'XXX',
+            'style': style
+        });
+        cvc.mount('#card-cvc');
+
+	// Card expiry
+        var exp = elements.create('cardExpiry', {
+            'placeholder': 'MM / YY',
+            'style': style
+        });
+        exp.mount('#card-exp');
+
+        // Handle form submission.
+        $('#payment-form').submit(function(event){
+	        event.preventDefault();
+
+		var cardData = {
+                };
+		stripe.createToken(card, cardData).then(function(result) {
+		    console.log(result);
+		    if(result.error && result.error.message){
+                        alert(result.error.message);
+	            } else {
+
+		    // Publish real payment(charge) request to stripe with token and several info
+		    var token = result.token.id;
+	                    $.post('/charge', {
+                            'token': token,
+                            'email': 'test@hogehoge.com',			    
+			    'description':'Test payment.',
+                                })
+
+                    // Assign handlers immediately after making the request,
+                    .done(function(data, textStatus, jqXHR) {
+		    	    alert('Payment successful') ;
+                        })
+                    .fail(function(jqXHR, textStatus, errorThrown) {
+                            var errorType = 'Error type : ' + jqXHR.responseJSON.type + '\n';
+                            var errorMessage = 'Message : ' + jqXHR.responseJSON.message;
+                            alert('Payment failed.' + '\n' + errorType + errorMessage) ;
+                        });
+                    }
+		});
+        });
+	
+</script>
+
+</body>
+</html>

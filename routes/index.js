@@ -6,6 +6,8 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
+const payment = require('../server/payment');
+
 /* Payment */
 router.post('/charge', async (req, res, next) => {
 	let {token,email,description} = req.body;

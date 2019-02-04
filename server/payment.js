@@ -34,10 +34,15 @@ var Payment = function() {}
 
 /* -- */
 Payment.charge = function (token,description,email) {
+
+    console.log(config.stripe.secretKey);
+    console.log(token);
+    console.log(config.amount);
+    
     return stripe.charges.create({
 	    amount: config.amount,
 	    currency: "jpy",	/* Japanese Yen */
-	    card: token,
+	    source: token,
 	    description: description,
 	    receipt_email: email,
 	});
