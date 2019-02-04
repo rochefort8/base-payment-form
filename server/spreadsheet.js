@@ -46,8 +46,8 @@ Record.addFeedback = function(name,graduate,star,comment) {
     var date = new Date();
     var formatted = date.toFormat("YYYY/MM/DD HH24:MI");
     return this.addRaw(sheet,1,
-			{col_1: formatted, col_2: name, col_2:graduate,
-			col_4: star, col_5:comment});
+			{col_1: formatted, col_2: name,
+			col_3: star, col_4:comment});
 }
 
 Record.addRaw = function(sheet,number,data) {
